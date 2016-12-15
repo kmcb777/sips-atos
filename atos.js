@@ -3,7 +3,9 @@
 var platform = require('os').platform(),
     exec = require('child_process').exec,
     path = require('path'),
-    tools = require('./lib/tools.js');
+    tools = require('./lib/tools.js'),
+    debug = require("debug")("sips-atos-debug"),
+    debugSIPS = process.env.DEBUG_SIPS === 'true';
 
 function AtosSIPS(options) {
     'use strict';
@@ -60,13 +62,19 @@ AtosSIPS.prototype.request = function (data, callback) {
         if (data.hasOwnProperty(key)) {
             value = data[key];
             if (typeof value === 'string') {
-              value = tools.removeDoubleQuotes(tools.removeDiacritics(value));
+              value = tools.removeDiacritics(value);
+              value = tools.removeDoubleQuotes(value);
+              value = tools.removeSlashes(value);
             }
             args = args + key + '="' + value + '" ';
         }
     }
 
+    if (debugSIPS) debug('exec request', this.paths.request + ' ' + args);
+
     exec(this.paths.request + ' ' + args, function (err, stdout, stderr) {
+        if (debugSIPS) debug('exec request return', err, stdout, stderr);
+
         var result = stdout.split('!');
 
         if (result[1] === undefined) {
@@ -123,7 +131,11 @@ function parseResult(result) {
 AtosSIPS.prototype.response = function (data, callback) {
     'use strict';
 
+    if (debugSIPS) debug('exec response', this.paths.response + ' pathfile=' + this.paths.pathfile + ' message=' + data);
+
     exec(this.paths.response + ' pathfile=' + this.paths.pathfile + ' message=' + data, function (err, stdout, stderr) {
+      if (debugSIPS) debug('exec response return', err, stdout, stderr);
+
         var result = parseResult(stdout.split('!'));
         if (result.code === undefined) {
             // Binary not found
