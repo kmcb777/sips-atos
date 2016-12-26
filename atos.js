@@ -132,8 +132,6 @@ AtosSIPS.prototype.response = function (data, callback) {
     'use strict';
 
     if (debugSIPS) debug('exec response', this.paths.response + ' pathfile=' + this.paths.pathfile + ' message=' + data);
-    
-    console.log('exec response', this.paths.response + ' pathfile=' + this.paths.pathfile + ' message=' + data);
 
     exec(this.paths.response + ' pathfile=' + this.paths.pathfile + ' message=' + data, function (err, stdout, stderr) {
       if (debugSIPS) debug('exec response return', err, stdout, stderr);
@@ -145,7 +143,14 @@ AtosSIPS.prototype.response = function (data, callback) {
         }
         if (result.code !== '0') {
             // Other error
-            return callback(result.error.replace(/<\/?[^>]*>/, ''), result);
+            var errorInfos = {
+                message: result.error.replace(/<\/?[^>]*>/, ''),
+                pathfile: this.paths.pathfile,
+                response: this.paths.response,
+                data: data
+            };
+            
+            return callback(errorInfos, result);
         }
         callback(null, result);
     });
