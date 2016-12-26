@@ -64,7 +64,10 @@ AtosSIPS.prototype.request = function (data, callback) {
             if (typeof value === 'string') {
               value = tools.removeDiacritics(value);
               value = tools.removeDoubleQuotes(value);
-              value = tools.removeSlashes(value);
+                
+              if (key === 'data') {
+                  value = tools.removeSlashes(value);
+              }
             }
             args = args + key + '="' + value + '" ';
         }
