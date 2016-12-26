@@ -5,7 +5,7 @@ var platform = require('os').platform(),
     path = require('path'),
     tools = require('./lib/tools.js'),
     debug = require("debug")("sips-atos-debug"),
-    debugSIPS = process.env.DEBUG_SIPS === 'true';
+    debugSIPS = true;
 
 function AtosSIPS(options) {
     'use strict';
@@ -132,6 +132,8 @@ AtosSIPS.prototype.response = function (data, callback) {
     'use strict';
 
     if (debugSIPS) debug('exec response', this.paths.response + ' pathfile=' + this.paths.pathfile + ' message=' + data);
+    
+    console.log('exec response', this.paths.response + ' pathfile=' + this.paths.pathfile + ' message=' + data);
 
     exec(this.paths.response + ' pathfile=' + this.paths.pathfile + ' message=' + data, function (err, stdout, stderr) {
       if (debugSIPS) debug('exec response return', err, stdout, stderr);
